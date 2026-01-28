@@ -12,9 +12,9 @@
     <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
     <meta name="theme-color" content="#f8fafc" media="(prefers-color-scheme: light)">
     
-    <!-- Icons (Embedded SVG Data URIs) -->
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='128' fill='%23ea580c'/%3E%3Cpath d='M160 144v224h56l128-168v168h48V144h-56L208 312V144h-48z' fill='white'/%3E%3C/svg%3E">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='128' fill='%23ea580c'/%3E%3Cpath d='M160 144v224h56l128-168v168h48V144h-56L208 312V144h-48z' fill='white'/%3E%3C/svg%3E">
+    <!-- Icons (Embedded SVG Data URIs) - Updated to Premium Bolt Icon -->
+    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='g1' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23f97316'/%3E%3Cstop offset='100%25' stop-color='%23ea580c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='128' fill='url(%23g1)'/%3E%3Cpath d='M320 128L224 288H272L192 448L288 288H240L320 128Z' fill='white' stroke='rgba(0,0,0,0.1)' stroke-width='16' stroke-linejoin='round'/%3E%3C/svg%3E">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='g1' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23f97316'/%3E%3Cstop offset='100%25' stop-color='%23ea580c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='128' fill='url(%23g1)'/%3E%3Cpath d='M320 128L224 288H272L192 448L288 288H240L320 128Z' fill='white' stroke='rgba(0,0,0,0.1)' stroke-width='16' stroke-linejoin='round'/%3E%3C/svg%3E">
     
     <!-- Inline Manifest for "Install App" Trigger -->
     <link rel="manifest" id="manifest-placeholder">
@@ -67,6 +67,9 @@
         // This is required to trick Chrome Android into providing the full "Install App" experience
         // instead of just a "Shortcut".
         const setupPWA = () => {
+            // New Premium Icon URL
+            const premiumIcon = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Cdefs%3E%3ClinearGradient id='g1' x1='0%25' y1='0%25' x2='100%25' y2='100%25'%3E%3Cstop offset='0%25' stop-color='%23f97316'/%3E%3Cstop offset='100%25' stop-color='%23ea580c'/%3E%3C/linearGradient%3E%3C/defs%3E%3Crect width='512' height='512' rx='128' fill='url(%23g1)'/%3E%3Cpath d='M320 128L224 288H272L192 448L288 288H240L320 128Z' fill='white' stroke='rgba(0,0,0,0.1)' stroke-width='16' stroke-linejoin='round'/%3E%3C/svg%3E";
+
             // 1. Dynamic Manifest Injection (Ensures correct paths)
             const manifest = {
                 "name": "Nutrition OS",
@@ -76,12 +79,20 @@
                 "background_color": "#0a0a0a",
                 "theme_color": "#ea580c",
                 "orientation": "portrait",
-                "icons": [{
-                    "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='128' fill='%23ea580c'/%3E%3Cpath d='M160 144v224h56l128-168v168h48V144h-56L208 312V144h-48z' fill='white'/%3E%3C/svg%3E",
-                    "sizes": "512x512",
-                    "type": "image/svg+xml",
-                    "purpose": "any maskable" 
-                }]
+                "icons": [
+                    {
+                        "src": premiumIcon,
+                        "sizes": "512x512",
+                        "type": "image/svg+xml",
+                        "purpose": "any maskable" 
+                    },
+                    {
+                        "src": premiumIcon,
+                        "sizes": "192x192",
+                        "type": "image/svg+xml",
+                        "purpose": "any maskable" 
+                    }
+                ]
             };
             const stringManifest = JSON.stringify(manifest);
             const blobManifest = new Blob([stringManifest], {type: 'application/json'});
