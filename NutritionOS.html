@@ -6,6 +6,7 @@
     <title>Nutrition OS</title>
     
     <!-- PWA & Mobile Config -->
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#0a0a0a" media="(prefers-color-scheme: dark)">
@@ -15,8 +16,8 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='128' fill='%23ea580c'/%3E%3Cpath d='M160 144v224h56l128-168v168h48V144h-56L208 312V144h-48z' fill='white'/%3E%3C/svg%3E">
     <link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='128' fill='%23ea580c'/%3E%3Cpath d='M160 144v224h56l128-168v168h48V144h-56L208 312V144h-48z' fill='white'/%3E%3C/svg%3E">
     
-    <!-- Inline Manifest for "Add to Home Screen" -->
-    <link rel="manifest" href='data:application/manifest+json,{"name":"Nutrition OS","short_name":"NutritionOS","start_url":".","display":"standalone","background_color":"#0a0a0a","theme_color":"#ea580c","icons":[{"src":"data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 512 512%27%3E%3Crect width=%27512%27 height=%27512%27 rx=%27128%27 fill=%27%23ea580c%27/%3E%3Cpath d=%27M160 144v224h56l128-168v168h48V144h-56L208 312V144h-48z%27 fill=%27white%27/%3E%3C/svg%3E","sizes":"512x512","type":"image/svg+xml"}]}'>
+    <!-- Inline Manifest for "Install App" Trigger -->
+    <link rel="manifest" id="manifest-placeholder">
 
     <!-- Tailwind CSS -->
     <script src="https://cdn.tailwindcss.com"></script>
@@ -61,6 +62,53 @@
     <div id="root"></div>
     <script type="text/babel">
         const { useState, useEffect, useMemo } = React;
+
+        // --- PWA INSTALLATION LOGIC (Service Worker & Manifest Injection) ---
+        // This is required to trick Chrome Android into providing the full "Install App" experience
+        // instead of just a "Shortcut".
+        const setupPWA = () => {
+            // 1. Dynamic Manifest Injection (Ensures correct paths)
+            const manifest = {
+                "name": "Nutrition OS",
+                "short_name": "NutritionOS",
+                "start_url": ".",
+                "display": "standalone",
+                "background_color": "#0a0a0a",
+                "theme_color": "#ea580c",
+                "orientation": "portrait",
+                "icons": [{
+                    "src": "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 512 512'%3E%3Crect width='512' height='512' rx='128' fill='%23ea580c'/%3E%3Cpath d='M160 144v224h56l128-168v168h48V144h-56L208 312V144h-48z' fill='white'/%3E%3C/svg%3E",
+                    "sizes": "512x512",
+                    "type": "image/svg+xml",
+                    "purpose": "any maskable" 
+                }]
+            };
+            const stringManifest = JSON.stringify(manifest);
+            const blobManifest = new Blob([stringManifest], {type: 'application/json'});
+            const manifestURL = URL.createObjectURL(blobManifest);
+            document.querySelector('#manifest-placeholder').setAttribute('href', manifestURL);
+
+            // 2. Service Worker Injection (Required for WebAPK/Install Prompt)
+            if ('serviceWorker' in navigator) {
+                const swCode = `
+                    self.addEventListener('install', (event) => self.skipWaiting());
+                    self.addEventListener('activate', (event) => self.clients.claim());
+                    self.addEventListener('fetch', (event) => {
+                        // Passthrough - we don't actually cache, we just exist to satisfy the PWA install criteria
+                    });
+                `;
+                const blobSw = new Blob([swCode], {type: 'text/javascript'});
+                const swUrl = URL.createObjectURL(blobSw);
+                
+                // Note: Blob-based SW might have origin limitations in strict contexts, 
+                // but it's the best attempt for a single-file solution.
+                navigator.serviceWorker.register(swUrl)
+                    .then(() => console.log('SW Registered'))
+                    .catch(e => console.log('SW Error:', e));
+            }
+        };
+        // Run PWA Setup
+        setupPWA();
 
         // --- SOUND ENGINE (Local Synthesis) ---
         const SoundEngine = {
